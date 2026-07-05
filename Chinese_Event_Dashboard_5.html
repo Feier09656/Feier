@@ -1,0 +1,878 @@
+<!DOCTYPE html>
+<html lang="th">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Chinese Event Pipeline — Bangkok MICE 2023–2026</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link href="https://fonts.googleapis.com/css2?family=Zilla+Slab:wght@500;600;700&family=IBM+Plex+Mono:wght@400;500;600&family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet">
+<style>
+  :root{
+    --ink:#14171c;
+    --ink-2:#1d2129;
+    --paper:#f3eee2;
+    --paper-2:#ece5d4;
+    --line:#d8cfb8;
+    --text:#241f18;
+    --text-soft:#5c5548;
+    --seal:#b23a2e;
+    --seal-dark:#8c2c22;
+    --jade:#3f6b54;
+    --jade-dark:#2c4c3b;
+    --gold:#c9a227;
+    --white:#fffdf8;
+  }
+  *{box-sizing:border-box;}
+  html,body{margin:0;padding:0;}
+  body{
+    background:var(--ink);
+    color:var(--text);
+    font-family:'Inter',system-ui,sans-serif;
+    -webkit-font-smoothing:antialiased;
+  }
+  ::selection{background:var(--gold);color:var(--ink);}
+
+  a{color:inherit;}
+
+  .wrap{max-width:1280px;margin:0 auto;padding:0 20px 64px;}
+
+  /* ---------- HEADER / BOARD ---------- */
+  header.board{
+    background:
+      radial-gradient(ellipse at 20% 0%, rgba(178,58,46,0.18), transparent 55%),
+      radial-gradient(ellipse at 85% 10%, rgba(63,107,84,0.16), transparent 50%),
+      var(--ink);
+    padding:44px 20px 30px;
+    border-bottom:1px solid #2a2f38;
+  }
+  .board-inner{max-width:1280px;margin:0 auto;}
+  .eyebrow{
+    font-family:'IBM Plex Mono',monospace;
+    font-size:11px;
+    letter-spacing:.18em;
+    text-transform:uppercase;
+    color:var(--gold);
+    display:flex;
+    align-items:center;
+    gap:10px;
+    margin-bottom:14px;
+  }
+  .eyebrow .dot{width:6px;height:6px;border-radius:50%;background:var(--seal);box-shadow:0 0 0 3px rgba(178,58,46,.25);}
+  h1{
+    font-family:'Zilla Slab',serif;
+    font-weight:700;
+    color:var(--white);
+    font-size:clamp(28px,4.2vw,46px);
+    line-height:1.05;
+    margin:0 0 10px;
+    letter-spacing:-0.01em;
+  }
+  h1 em{font-style:normal;color:var(--seal);}
+  .sub{
+    color:#a9b0ba;
+    font-size:15px;
+    max-width:640px;
+    line-height:1.55;
+    margin:0 0 30px;
+  }
+
+  .flipboard{
+    display:grid;
+    grid-template-columns:repeat(auto-fit,minmax(150px,1fr));
+    gap:1px;
+    background:#2a2f38;
+    border:1px solid #2a2f38;
+    border-radius:10px;
+    overflow:hidden;
+  }
+  .flip-tile{
+    background:var(--ink-2);
+    padding:18px 20px;
+    position:relative;
+  }
+  .flip-tile .num{
+    font-family:'IBM Plex Mono',monospace;
+    font-weight:600;
+    font-size:32px;
+    color:var(--white);
+    letter-spacing:-.01em;
+    line-height:1;
+  }
+  .flip-tile .num small{font-size:14px;color:var(--gold);margin-left:2px;}
+  .flip-tile .lbl{
+    margin-top:8px;
+    font-size:11px;
+    letter-spacing:.1em;
+    text-transform:uppercase;
+    color:#7d8593;
+  }
+  .flip-tile.accent-seal .num{color:#e2897e;}
+  .flip-tile.accent-jade .num{color:#7fb79a;}
+
+  /* ---------- FILTER BAR ---------- */
+  .filters{
+    background:var(--paper);
+    margin:-1px 20px 0;
+    max-width:1240px;
+    margin-left:auto;margin-right:auto;
+    border:1px solid var(--line);
+    border-radius:12px;
+    padding:20px 22px;
+    margin-top:26px;
+    box-shadow:0 18px 40px -20px rgba(0,0,0,.55);
+  }
+  .filters-row{display:flex;flex-wrap:wrap;gap:22px 28px;}
+  .filter-group{display:flex;flex-direction:column;gap:8px;min-width:0;}
+  .filter-group.grow{flex:1 1 220px;}
+  .filter-label{
+    font-family:'IBM Plex Mono',monospace;
+    font-size:10.5px;
+    letter-spacing:.12em;
+    text-transform:uppercase;
+    color:var(--text-soft);
+  }
+  .chips{display:flex;flex-wrap:wrap;gap:6px;}
+  .chip{
+    font-family:'Inter',sans-serif;
+    font-size:12.5px;
+    font-weight:600;
+    padding:6px 12px;
+    border-radius:999px;
+    border:1px solid var(--line);
+    background:var(--white);
+    color:var(--text-soft);
+    cursor:pointer;
+    transition:all .12s ease;
+    user-select:none;
+    white-space:nowrap;
+  }
+  .chip:hover{border-color:var(--seal);color:var(--seal);}
+  .chip.active{
+    background:var(--ink);
+    border-color:var(--ink);
+    color:var(--paper);
+  }
+  .chip .count{opacity:.55;font-family:'IBM Plex Mono',monospace;font-size:10.5px;margin-left:4px;}
+
+  .search-input{
+    font-family:'Inter',sans-serif;
+    font-size:14px;
+    padding:9px 14px;
+    border-radius:8px;
+    border:1px solid var(--line);
+    background:var(--white);
+    color:var(--text);
+    width:100%;
+    outline:none;
+  }
+  .search-input:focus{border-color:var(--seal);}
+  .search-input::placeholder{color:#a49a80;}
+
+  .filters-bottom{
+    display:flex;justify-content:space-between;align-items:center;
+    margin-top:16px;padding-top:14px;border-top:1px dashed var(--line);
+    font-size:12.5px;color:var(--text-soft);
+  }
+  .reset-btn{
+    font-family:'IBM Plex Mono',monospace;
+    font-size:11px;letter-spacing:.06em;
+    background:none;border:1px solid var(--line);
+    padding:6px 12px;border-radius:6px;cursor:pointer;color:var(--text-soft);
+  }
+  .reset-btn:hover{border-color:var(--seal);color:var(--seal);}
+
+  /* ---------- BREAKDOWN BARS ---------- */
+  .breakdowns{
+    display:grid;grid-template-columns:repeat(3,1fr);gap:16px;
+    margin-top:20px;
+  }
+  @media (max-width:820px){.breakdowns{grid-template-columns:1fr;}}
+  .bd-card{
+    background:var(--paper);border:1px solid var(--line);border-radius:12px;
+    padding:16px 18px 12px;
+  }
+  .bd-title{
+    font-family:'IBM Plex Mono',monospace;font-size:10.5px;letter-spacing:.1em;
+    text-transform:uppercase;color:var(--text-soft);margin-bottom:12px;
+  }
+  .bd-row{display:flex;align-items:center;gap:10px;margin-bottom:8px;font-size:12.5px;}
+  .bd-name{width:96px;flex:0 0 auto;color:var(--text);font-weight:600;overflow:hidden;text-overflow:ellipsis;white-space:nowrap;}
+  .bd-track{flex:1;background:var(--paper-2);border-radius:4px;height:9px;overflow:hidden;}
+  .bd-fill{height:100%;border-radius:4px;background:var(--seal);}
+  .bd-val{font-family:'IBM Plex Mono',monospace;width:26px;text-align:right;color:var(--text-soft);}
+
+  /* ---------- RESULTS ---------- */
+  .results-meta{
+    max-width:1240px;margin:26px auto 12px;
+    display:flex;justify-content:space-between;align-items:baseline;
+    color:#c7cbd2;font-size:13px;
+    font-family:'IBM Plex Mono',monospace;
+  }
+  .results-meta b{color:var(--white);font-size:15px;}
+
+  .cards{
+    max-width:1240px;margin:0 auto;
+    display:flex;flex-direction:column;gap:10px;
+  }
+  .event-card{
+    background:var(--paper);
+    border:1px solid var(--line);
+    border-radius:10px;
+    position:relative;
+    overflow:hidden;
+    cursor:pointer;
+  }
+  .event-card::before,.event-card::after{
+    content:"";position:absolute;top:50%;transform:translateY(-50%);
+    width:16px;height:16px;background:var(--ink);border-radius:50%;
+  }
+  .event-card::before{left:-8px;}
+  .event-card::after{right:-8px;}
+  .card-main{
+    display:grid;
+    grid-template-columns:96px 1fr 130px 110px 120px 34px;
+    gap:14px;
+    align-items:center;
+    padding:14px 26px;
+  }
+  @media (max-width:900px){
+    .card-main{grid-template-columns:1fr;gap:6px;padding:14px 20px;}
+    .card-main .stub-date{order:-1;}
+  }
+  .stub-date{
+    font-family:'IBM Plex Mono',monospace;
+    font-size:12px;color:var(--text-soft);
+    border-right:1px dashed var(--line);
+    padding-right:14px;
+  }
+  .stub-date .yr{display:block;font-size:17px;font-weight:600;color:var(--text);}
+  .card-title{min-width:0;}
+  .card-title .name{
+    font-family:'Zilla Slab',serif;font-weight:600;font-size:16.5px;
+    color:var(--text);line-height:1.25;
+    display:-webkit-box;-webkit-line-clamp:2;-webkit-box-orient:vertical;overflow:hidden;
+  }
+  .card-title .org{
+    font-size:12px;color:var(--text-soft);margin-top:3px;
+    overflow:hidden;text-overflow:ellipsis;white-space:nowrap;
+  }
+  .tag{
+    display:inline-block;font-size:10.5px;font-weight:700;letter-spacing:.04em;
+    padding:3px 8px;border-radius:5px;text-transform:uppercase;
+    font-family:'IBM Plex Mono',monospace;
+  }
+  .tag-Exhibition{background:#e3ded0;color:#5c5442;}
+  .tag-Incentive{background:#dbe6e0;color:var(--jade-dark);}
+  .tag-Conference{background:#e6d9d2;color:var(--seal-dark);}
+  .tag-Concert{background:#e9dcee;color:#5c3a66;}
+  .tag-SpecialProject{background:#f0e2ad;color:#7a5c05;}
+
+  .venue-cell{font-size:13px;}
+  .venue-cell b{display:block;font-family:'IBM Plex Mono',monospace;font-size:12.5px;}
+  .venue-cell span{color:var(--text-soft);font-size:11.5px;}
+
+  .pax-cell{font-family:'IBM Plex Mono',monospace;text-align:right;font-size:14px;color:var(--text);}
+  .pax-cell small{display:block;font-size:9.5px;color:var(--text-soft);text-transform:uppercase;letter-spacing:.06em;font-family:'Inter',sans-serif;}
+
+  .stamp{
+    font-family:'IBM Plex Mono',monospace;
+    font-size:9.5px;font-weight:700;letter-spacing:.05em;
+    border:2px solid var(--jade);color:var(--jade);
+    border-radius:5px;padding:4px 6px;text-align:center;
+    transform:rotate(-6deg);text-transform:uppercase;
+    justify-self:start;
+  }
+  .stamp.inquiry{border-color:var(--seal);color:var(--seal);transform:rotate(-4deg);}
+
+  .chevron{color:var(--text-soft);font-size:16px;transition:transform .15s ease;justify-self:end;}
+  .event-card.open .chevron{transform:rotate(90deg);}
+
+  .card-detail{
+    max-height:0;overflow:hidden;
+    transition:max-height .22s ease;
+    border-top:1px dashed transparent;
+  }
+  .event-card.open .card-detail{max-height:400px;border-top-color:var(--line);}
+  .detail-inner{
+    padding:16px 26px 20px;
+    display:grid;grid-template-columns:1fr 1fr;gap:16px;
+    font-size:13px;color:var(--text);
+  }
+  @media (max-width:700px){.detail-inner{grid-template-columns:1fr;}}
+  .detail-inner .dt{font-family:'IBM Plex Mono',monospace;font-size:10px;text-transform:uppercase;letter-spacing:.08em;color:var(--text-soft);margin-bottom:4px;}
+  .detail-inner .dd{line-height:1.5;margin-bottom:14px;word-break:break-word;}
+  .detail-inner a.web{color:var(--seal);text-decoration:none;border-bottom:1px solid currentColor;}
+
+  .empty-state{
+    text-align:center;padding:60px 20px;color:#c7cbd2;
+    font-family:'IBM Plex Mono',monospace;font-size:13px;
+  }
+
+  /* ---------- TREND CHART ---------- */
+  .trend-card{
+    max-width:1240px;margin:20px auto 0;
+    background:var(--paper);border:1px solid var(--line);border-radius:12px;
+    padding:18px 22px 20px;
+  }
+  .trend-head{
+    display:flex;justify-content:space-between;align-items:center;flex-wrap:wrap;gap:10px;
+    margin-bottom:14px;
+  }
+  .trend-title{
+    font-family:'IBM Plex Mono',monospace;font-size:10.5px;letter-spacing:.1em;
+    text-transform:uppercase;color:var(--text-soft);
+    display:flex;align-items:center;gap:8px;
+  }
+  .trend-title .dot{width:6px;height:6px;border-radius:50%;background:var(--seal);}
+  .trend-scope{
+    text-transform:none;letter-spacing:0;color:#a49a80;font-size:11px;margin-left:2px;
+  }
+  .trend-panels{
+    display:grid;grid-template-columns:1fr 1fr;gap:20px;
+  }
+  @media (max-width:760px){.trend-panels{grid-template-columns:1fr;}}
+  .trend-panel{
+    background:var(--white);border:1px solid var(--line);border-radius:10px;
+    padding:14px 16px 10px;
+  }
+  .trend-panel-head{
+    display:flex;align-items:center;gap:8px;margin-bottom:6px;
+    font-size:12.5px;font-weight:600;color:var(--text);
+  }
+  .trend-panel-head .lg-swatch{width:9px;height:9px;border-radius:2px;}
+  .lg-count{background:var(--seal);}
+  .lg-pax{background:var(--jade);}
+  .trend-svg-wrap svg{width:100%;height:auto;display:block;overflow:visible;}
+  .venue-legend{display:flex;flex-wrap:wrap;gap:12px;margin-top:4px;padding-top:8px;border-top:1px dashed var(--line);}
+  .venue-legend .lg-item{display:flex;align-items:center;gap:6px;font-size:11.5px;color:var(--text-soft);font-weight:600;}
+  .venue-legend .lg-swatch{width:9px;height:9px;border-radius:2px;display:inline-block;}
+  .trend-empty{
+    padding:30px;text-align:center;color:var(--text-soft);font-family:'IBM Plex Mono',monospace;font-size:12.5px;
+  }
+
+  /* ---------- EXHIBITION SUMMARY ---------- */
+  .exh-summary{
+    max-width:1240px;margin:34px auto 0;
+    background:var(--ink-2);
+    border:1px solid #2a2f38;
+    border-radius:12px;
+    padding:22px 26px 26px;
+  }
+  .exh-summary-label{
+    font-family:'IBM Plex Mono',monospace;
+    font-size:11px;letter-spacing:.14em;text-transform:uppercase;
+    color:var(--gold);
+    display:flex;align-items:center;gap:10px;margin-bottom:16px;
+  }
+  .exh-summary-label .dot{width:6px;height:6px;border-radius:50%;background:var(--jade);box-shadow:0 0 0 3px rgba(63,107,84,.28);}
+  .exh-summary-scope{
+    color:#7d8593;text-transform:none;letter-spacing:0;font-weight:400;font-size:11.5px;
+  }
+  .exh-summary-grid{
+    display:grid;grid-template-columns:repeat(auto-fit,minmax(260px,1fr));gap:1px;
+    background:#2a2f38;border:1px solid #2a2f38;border-radius:10px;overflow:hidden;
+  }
+  .exh-tile{
+    background:var(--ink);
+    padding:22px 24px;
+    display:flex;align-items:center;gap:18px;
+  }
+  .exh-num{
+    font-family:'IBM Plex Mono',monospace;font-weight:600;
+    font-size:38px;color:var(--white);letter-spacing:-.01em;line-height:1;
+    flex:0 0 auto;
+  }
+  .exh-tile.accent .exh-num{color:#7fb79a;}
+  .exh-lbl{
+    font-size:12px;color:#a9b0ba;line-height:1.4;
+  }
+  .exh-lbl span{display:block;color:#7d8593;font-size:11px;margin-top:2px;}
+
+  footer{
+    max-width:1240px;margin:40px auto 0;padding:18px 4px 0;
+    border-top:1px solid #2a2f38;color:#6b7280;font-size:11.5px;
+    font-family:'IBM Plex Mono',monospace;
+    display:flex;justify-content:space-between;flex-wrap:wrap;gap:8px;
+  }
+</style>
+</head>
+<body>
+
+<header class="board">
+  <div class="board-inner">
+    <div class="eyebrow"><span class="dot"></span>BITEC · IMPACT · QSNCC — BANGKOK</div>
+    <h1>Chinese Event <em>Pipeline</em><br>2023 – 2026</h1>
+    <p class="sub">ฐานข้อมูลงานอีเวนต์ นิทรรศการ และกรุ๊ปอินเซนทีฟจากผู้จัดงานจีน ที่จัดขึ้น ณ 3 ศูนย์ประชุมหลักของกรุงเทพฯ กรองข้อมูลด้านล่างเพื่อค้นหาอย่างรวดเร็ว</p>
+    <div class="flipboard" id="statTiles"></div>
+  </div>
+</header>
+
+<div class="wrap">
+  <div class="filters">
+    <div class="filters-row">
+      <div class="filter-group grow">
+        <div class="filter-label">ค้นหา / Search</div>
+        <input class="search-input" id="searchBox" type="text" placeholder="ชื่องาน, ผู้จัด, ฮอลล์...">
+      </div>
+      <div class="filter-group">
+        <div class="filter-label">ปี / Year</div>
+        <div class="chips" id="chipsYear"></div>
+      </div>
+      <div class="filter-group">
+        <div class="filter-label">สถานที่ / Venue</div>
+        <div class="chips" id="chipsVenue"></div>
+      </div>
+      <div class="filter-group">
+        <div class="filter-label">ประเภท / Category</div>
+        <div class="chips" id="chipsCategory"></div>
+      </div>
+      <div class="filter-group">
+        <div class="filter-label">สถานะ / Status</div>
+        <div class="chips" id="chipsStatus"></div>
+      </div>
+    </div>
+    <div class="filters-bottom">
+      <span id="filterSummary"></span>
+      <button class="reset-btn" id="resetBtn">RESET FILTERS</button>
+    </div>
+  </div>
+
+  <div class="breakdowns" id="breakdowns"></div>
+
+  <section class="trend-card">
+    <div class="trend-head">
+      <div class="trend-title"><span class="dot"></span>Overview by Year<span class="trend-scope" id="trendScope">— ทุกข้อมูล (All data)</span></div>
+    </div>
+    <div class="trend-panels">
+      <div class="trend-panel">
+        <div class="trend-panel-head"><span class="lg-swatch lg-count"></span>Project Number</div>
+        <div class="trend-svg-wrap" id="trendChartCount"></div>
+        <div id="trendLegendCount"></div>
+      </div>
+      <div class="trend-panel">
+        <div class="trend-panel-head"><span class="lg-swatch lg-pax"></span>Number of Pax</div>
+        <div class="trend-svg-wrap" id="trendChartPax"></div>
+        <div id="trendLegendPax"></div>
+      </div>
+    </div>
+  </section>
+
+  <section class="exh-summary">
+    <div class="exh-summary-label">
+      <span class="dot"></span>Exhibition Overview<span class="exh-summary-scope" id="exhScope">— ทุกข้อมูล (All data)</span>
+    </div>
+    <div class="exh-summary-grid">
+      <div class="exh-tile">
+        <div class="exh-num" id="exhCount">0</div>
+        <div class="exh-lbl">Total Exhibition Project<br><span>in Number (จำนวนงาน)</span></div>
+      </div>
+      <div class="exh-tile accent">
+        <div class="exh-num" id="exhPax">0</div>
+        <div class="exh-lbl">Total Exhibition Project<br><span>in Size (รวม Number of pax)</span></div>
+      </div>
+    </div>
+  </section>
+
+  <div class="results-meta">
+    <span>SHOWING <b id="resultCount">0</b> OF <b id="totalCount">0</b> EVENTS</span>
+    <span id="sortInfo">เรียงตาม ปี → เดือน</span>
+  </div>
+
+
+  <div class="cards" id="cardsContainer"></div>
+  <div class="empty-state" id="emptyState" style="display:none;">ไม่พบข้อมูลที่ตรงกับตัวกรอง — ลองล้างตัวกรองหรือค้นหาคำอื่น</div>
+
+  <footer>
+    <span>DATA SOURCE: Chinese_Event-2023-2026_06Jun.xlsx · 93 events grouped from raw sheet</span>
+    <span>DASHBOARD GENERATED FOR OFFLINE/ONLINE VIEWING</span>
+  </footer>
+</div>
+
+<script>
+const RAW_DATA = [{"No": 1, "Year": 2023, "Month": "Jun", "Date": "24-26", "Category": "Conference", "EventName": "THE 16th WORLD CHINESE ENTREPRENEURS CONVENTION", "EventWeb": null, "Organizers": "Thai-Chinese Chamber of Commerce.", "OrganizerWebs": "", "NoOfEdition": null, "NoOfEditionAtVenue": null, "Venue": "QSNCC", "VenueHall": "Hall 1-2", "Pax": 11230.0, "Status": "Confirmed", "Remark": null}, {"No": 2, "Year": 2023, "Month": "Jun", "Date": "24-26", "Category": "Exhibition", "EventName": "OCTF 2023 (Bangkok) Intelligent Technology Exhibition", "EventWeb": "https://www.facebook.com/OCTFThailand/about_contact_and_basic_info", "Organizers": "Shenzhen Oversea Chinese Fair Investment Management Co., LTD; Guangdong Guangzhan International Exhibition Co., Ltd.", "OrganizerWebs": "https://cn.octfgroup.com/; http://www.18sz.com/index.php?homepage=gzguangzhan&file=introduce", "NoOfEdition": 1.0, "NoOfEditionAtVenue": 1.0, "Venue": "QSNCC", "VenueHall": "Hall 3", "Pax": 5800.0, "Status": "Confirmed", "Remark": null}, {"No": 3, "Year": 2023, "Month": "Jul", "Date": "13-15", "Category": "Exhibition", "EventName": "2023 Asia Fashion (Thailand）Show", "EventWeb": "https://www.af-show.com/en", "Organizers": "Guangdong Qiya Exhibition Technology Co., Ltd.", "OrganizerWebs": "https://www.facebook.com/QiyaExpo/", "NoOfEdition": 1.0, "NoOfEditionAtVenue": 1.0, "Venue": "BITEC", "VenueHall": "EH 100", "Pax": 6600.0, "Status": "Confirmed", "Remark": null}, {"No": 4, "Year": 2023, "Month": "Jul", "Date": "19-21", "Category": "Exhibition", "EventName": "Mega Show Bangkok 2023", "EventWeb": "https://www.megashowbangkok.com/index.html", "Organizers": "Comasia Limited", "OrganizerWebs": "www.comasia.com.hk", "NoOfEdition": 5.0, "NoOfEditionAtVenue": 1.0, "Venue": "BITEC", "VenueHall": "EH 98", "Pax": 8600.0, "Status": "Confirmed", "Remark": "Start: 2019"}, {"No": 5, "Year": 2023, "Month": "Jul", "Date": "20-22", "Category": "Exhibition", "EventName": "Taiwan Expo 2023 in Thailand", "EventWeb": "https://thai.taiwanexpoasean.com/en/index.html", "Organizers": "International Trade Administration /Taitra", "OrganizerWebs": "https://www.trade.gov.tw/", "NoOfEdition": 6.0, "NoOfEditionAtVenue": 4.0, "Venue": "BITEC", "VenueHall": "EH 100", "Pax": 6600.0, "Status": "Confirmed", "Remark": "Start: 2018-2020 at Hotel /2021 online semena /2022 @paragon hall"}, {"No": 6, "Year": 2023, "Month": "Sep", "Date": "13-15", "Category": "Exhibition", "EventName": "The 10th China-ASEAN(Thailand) Commodity Fair(CACF)", "EventWeb": "https://www.facebook.com/cacfthailand/about", "Organizers": "China Foreign Trade Centre", "OrganizerWebs": "https://www.cfte.com/", "NoOfEdition": 10.0, "NoOfEditionAtVenue": 4.0, "Venue": "BITEC", "VenueHall": "EH 102", "Pax": 5240.0, "Status": "Confirmed", "Remark": "2011/2016 @Impact >>> 2013/2018-2019 at Bitec (2014-2015 not found information / 2020-2022 No held)"}, {"No": 7, "Year": 2023, "Month": "Sep", "Date": "14-15", "Category": "Exhibition", "EventName": "Shanghai Fair in Thailand 2023", "EventWeb": "https://shanghaifair.net/", "Organizers": "Shanghai Federation of Economic Organizations, abbreviation: SFEO  上海市工业经济联合会; Shanghai Sail International Convention and Exhibition Co., Ltd 海上之帆会展（上海）有限公司", "OrganizerWebs": "http://www.sfeo.org/; http://www.sailofshanghai.com/", "NoOfEdition": 1.0, "NoOfEditionAtVenue": 1.0, "Venue": "BITEC", "VenueHall": "EH 101", "Pax": 5480.0, "Status": "Confirmed", "Remark": null}, {"No": 8, "Year": 2023, "Month": "Nov", "Date": "01-03", "Category": "Exhibition", "EventName": "Secutech Thailand 2023", "EventWeb": "https://secutechthailand.tw.messefrankfurt.com/bangkok/en.html", "Organizers": "Messe Frankfurt (HK) Ltd Taiwan Media Branch", "OrganizerWebs": "https://www.tw.messefrankfurt.com/taipei/en/company.html", "NoOfEdition": 8.0, "NoOfEditionAtVenue": 3.0, "Venue": "BITEC", "VenueHall": "EH 103", "Pax": 5240.0, "Status": "Confirmed", "Remark": "2017-2019 @Bitec // 2020-2022 Covid19"}, {"No": 9, "Year": 2023, "Month": "Nov", "Date": "9-12", "Category": "Exhibition", "EventName": "Green Technology Expo 2023", "EventWeb": "https://www.pdie-expo.com/green-technology-ev-expo", "Organizers": "Council for the Promotion of International Trade Shanghai; Shanghai International Exhibition (Group) Co., Ltd.; Thai-Sino Association of Sciences and Technology", "OrganizerWebs": "https://www.cpitsh.org/cpitsh-en/index.html; https://en.ciei-expo.com/; https://tsast.org/", "NoOfEdition": 1.0, "NoOfEditionAtVenue": 1.0, "Venue": "BITEC", "VenueHall": "EH 98", "Pax": 8600.0, "Status": "Confirmed", "Remark": null}, {"No": 10, "Year": 2023, "Month": "Oct", "Date": "24-26", "Category": "Exhibition", "EventName": "Vend ASEAN and Fun & Biz ASEAN 2023", "EventWeb": "https://www.vendasean.com/", "Organizers": "Guangdong Grandeur International Exhibition Group Co., Ltd.; Compass Exhibition Co.,Ltd.", "OrganizerWebs": "www.cgff.net; https://www.facebook.com/compassexhibitionthailand/#", "NoOfEdition": 1.0, "NoOfEditionAtVenue": 1.0, "Venue": "IMPACT", "VenueHall": "IEC Hall 11-12", "Pax": 13500.0, "Status": "Confirmed", "Remark": null}, {"No": 11, "Year": 2024, "Month": "Jan", "Date": "10", "Category": "Incentive", "EventName": "Incentive China 微赢集团 by TKL", "EventWeb": null, "Organizers": "T.K.L. HOLIDAY CO., LTD.", "OrganizerWebs": "", "NoOfEdition": 1.0, "NoOfEditionAtVenue": 1.0, "Venue": "IMPACT", "VenueHall": "Royal Jubilee Ballroom", "Pax": 1500.0, "Status": "Confirmed", "Remark": null}, {"No": 12, "Year": 2024, "Month": "Feb", "Date": "29 Fab-02 Mar", "Category": "Exhibition", "EventName": "Intelligent Asia Thailand 2024", "EventWeb": "https://intelligentasia-thailand.chanchao.com.tw/", "Organizers": "Yorkers Trade & Marketing Service Co., Ltd.; Messe Frankfurt (HK) Ltd, Taiwan Branch; GMTX Company Limited", "OrganizerWebs": "https://www.chanchao.com.tw/en/; https://www.tw.messefrankfurt.com/taipei/zh-tw.html; https://www.greenworldmedia.co.th/", "NoOfEdition": 1.0, "NoOfEditionAtVenue": 1.0, "Venue": "BITEC", "VenueHall": "EH 100", "Pax": 6600.0, "Status": "Confirmed", "Remark": "Co with VNU, and they feel like BITEC location is more central for this event."}, {"No": 13, "Year": 2024, "Month": "Mar", "Date": "13-15", "Category": "Conference", "EventName": "The 15th Global Freight Forwarders Conference", "EventWeb": null, "Organizers": "JC Trans", "OrganizerWebs": "", "NoOfEdition": null, "NoOfEditionAtVenue": null, "Venue": "QSNCC", "VenueHall": "Exhibition Hall 1-2", "Pax": 11230.0, "Status": "Confirmed", "Remark": null}, {"No": 14, "Year": 2024, "Month": "Mar", "Date": "28", "Category": "Incentive", "EventName": "Incentive China  (28 & 30 Mar 24)", "EventWeb": null, "Organizers": "Nan Chiang Trading (Thailand) Co., Ltd.", "OrganizerWebs": "", "NoOfEdition": null, "NoOfEditionAtVenue": null, "Venue": "IMPACT", "VenueHall": "Sapphire 110 & 112", "Pax": 90.0, "Status": "Confirmed", "Remark": null}, {"No": 15, "Year": 2024, "Month": "Mar", "Date": "29", "Category": "Incentive", "EventName": "International Incentive Group 疆村购", "EventWeb": null, "Organizers": "Thai New Generation Group Co., Ltd.", "OrganizerWebs": "", "NoOfEdition": null, "NoOfEditionAtVenue": null, "Venue": "IMPACT", "VenueHall": "Royal Jubilee Ballroom", "Pax": 2500.0, "Status": "Confirmed", "Remark": null}, {"No": 16, "Year": 2024, "Month": "Apr", "Date": "8", "Category": "Incentive", "EventName": "Chinese Incentive (巨星传奇）", "EventWeb": null, "Organizers": "Thai New Generation Group Co., Ltd.", "OrganizerWebs": "", "NoOfEdition": null, "NoOfEditionAtVenue": null, "Venue": "IMPACT", "VenueHall": "IEC Hall 6-7", "Pax": 2100.0, "Status": "Confirmed", "Remark": null}, {"No": 17, "Year": 2024, "Month": "May", "Date": "10", "Category": "Incentive", "EventName": "International Incentive", "EventWeb": null, "Organizers": "Qinghe International Travel Co., Ltd.", "OrganizerWebs": "", "NoOfEdition": null, "NoOfEditionAtVenue": null, "Venue": "IMPACT", "VenueHall": "Royal Jubilee Ballroom", "Pax": 1450.0, "Status": "Confirmed", "Remark": null}, {"No": 18, "Year": 2024, "Month": "May", "Date": "22", "Category": "Incentive", "EventName": "Incentive Group from China", "EventWeb": null, "Organizers": "Qinghe International Travel Co., Ltd.", "OrganizerWebs": "", "NoOfEdition": null, "NoOfEditionAtVenue": null, "Venue": "IMPACT", "VenueHall": "Royal Jubilee Ballroom", "Pax": 1820.0, "Status": "Confirmed", "Remark": null}, {"No": 19, "Year": 2024, "Month": "Jun", "Date": "5-7", "Category": "Exhibition", "EventName": "CIOSH Thailand 2024", "EventWeb": "-", "Organizers": "CIOSH Asia Co., Ltd. / China Textile Commerce Association", "OrganizerWebs": "https://www.ciosh-thailand.com/", "NoOfEdition": 1.0, "NoOfEditionAtVenue": 1.0, "Venue": "BITEC", "VenueHall": "EH 103-104", "Pax": 9580.0, "Status": "Confirmed", "Remark": null}, {"No": 20, "Year": 2024, "Month": "Jun", "Date": "14", "Category": "Incentive", "EventName": "Herbalife China Group", "EventWeb": null, "Organizers": "Tai Lang Travel Co., Ltd.", "OrganizerWebs": "", "NoOfEdition": null, "NoOfEditionAtVenue": null, "Venue": "IMPACT", "VenueHall": "Royal Jubilee Ballroom", "Pax": 1539.0, "Status": "Confirmed", "Remark": null}, {"No": 21, "Year": 2024, "Month": "Jun", "Date": "27", "Category": "Incentive", "EventName": "Incentive China by TKL", "EventWeb": null, "Organizers": "T.K.L. HOLIDAY CO., LTD.", "OrganizerWebs": "", "NoOfEdition": null, "NoOfEditionAtVenue": null, "Venue": "IMPACT", "VenueHall": "Royal Jubilee Ballroom", "Pax": 1000.0, "Status": "Confirmed", "Remark": null}, {"No": 22, "Year": 2024, "Month": "Jul", "Date": "17-20", "Category": "Exhibition", "EventName": "Mega Show 2024", "EventWeb": "https://www.megashowbangkok.com/index.html", "Organizers": "Comasia Limited", "OrganizerWebs": "www.comasia.com.hk", "NoOfEdition": 6.0, "NoOfEditionAtVenue": 6.0, "Venue": "BITEC", "VenueHall": "EH 98-101", "Pax": 26180.0, "Status": "Confirmed", "Remark": null}, {"No": 23, "Year": 2024, "Month": "Jul", "Date": "25-27", "Category": "Exhibition", "EventName": "2024 Asia Fashion (Thailand) Show", "EventWeb": "https://www.af-show.com/en", "Organizers": "Guangdong Qiya Exhibition Technology Co., Ltd.", "OrganizerWebs": "https://www.facebook.com/QiyaExpo/", "NoOfEdition": 2.0, "NoOfEditionAtVenue": 2.0, "Venue": "BITEC", "VenueHall": "EH 99-100", "Pax": 12100.0, "Status": "Confirmed", "Remark": "No action needed , but should keep the organiser updated with IMPACT updated news . July met with their PM during their show , they are not likely to move from BITEC as their exhibitors and visitors have been used to BITEC location , unlikely scale expand in future"}, {"No": 24, "Year": 2024, "Month": "Sep", "Date": "3-5", "Category": "Exhibition", "EventName": "Vend ASEAN /FNB ASEAN /and TAAPE ASEAN", "EventWeb": "https://www.vendasean.com/", "Organizers": "Guangdong Grandeur International Exhibition Group Co., Ltd.; Compass Exhibition Co.,Ltd.", "OrganizerWebs": "www.cgff.net; https://www.facebook.com/compassexhibitionthailand/#", "NoOfEdition": 1.0, "NoOfEditionAtVenue": 1.0, "Venue": "IMPACT", "VenueHall": "IEC Hall 5-6", "Pax": 10000.0, "Status": "Confirmed", "Remark": null}, {"No": 25, "Year": 2024, "Month": "Sep", "Date": "17-18", "Category": "Exhibition", "EventName": "Shanghai Fair going to Thailand-Trade Show 2024", "EventWeb": "https://shanghaifair.net/", "Organizers": "Shanghai Federation of Economic Organizations, abbreviation: SFEO  上海市工业经济联合会; Shanghai Sail International Convention and Exhibition Co., Ltd 海上之帆会展（上海）有限公司", "OrganizerWebs": "http://www.sfeo.org/; http://www.sailofshanghai.com/", "NoOfEdition": 2.0, "NoOfEditionAtVenue": 1.0, "Venue": "BITEC", "VenueHall": "EH101", "Pax": 5480.0, "Status": "Confirmed", "Remark": "not likely to come back to Thailand , this year goes to Hungary , have held in recent year at Thailand, Korea, Japan . Political exhibitions"}, {"No": 26, "Year": 2024, "Month": "Sep", "Date": "18-20", "Category": "Exhibition", "EventName": "Metal Thailand 2024", "EventWeb": "https://www.expochina.cn/expo/100009", "Organizers": "China Foundry Association 中国铸造协会; CHINA HEAT TREATMENT ASSOCIATION (CHTA) 中国热处理行业协会; ChinaWeldingAssociation (CWA) 中国焊接协会", "OrganizerWebs": "https://www.foundry.org.cn/; http://www.chta.org.cn/xhgb-website/index; http://www.china-weldnet.com/", "NoOfEdition": 1.0, "NoOfEditionAtVenue": 1.0, "Venue": "BITEC", "VenueHall": "EH 102", "Pax": 5240.0, "Status": "Confirmed", "Remark": "Contact name\nMaggie Li, Sofia Nie, Yang You\n \nCompany/organization name\nBeijing Zhongzhu Century Exhibition Co., Ltd.\n \nTel : +8610-68418899-665/617/662\n \nEmail : limengmeng@foundry.com.cn / niefei@foundry.com.cn / youyang@foundry.com.cn\n Website :www.expochina.cn"}, {"No": 27, "Year": 2024, "Month": "Sep", "Date": "18-20", "Category": "Exhibition", "EventName": "The 11st China-ASEAN (Thailand) Commodity Fair (CACF)", "EventWeb": "https://www.facebook.com/cacfthailand/about", "Organizers": "China Foreign Trade Centre", "OrganizerWebs": "https://www.cfte.com/", "NoOfEdition": 11.0, "NoOfEditionAtVenue": 5.0, "Venue": "BITEC", "VenueHall": "EH 98", "Pax": 8600.0, "Status": "Confirmed", "Remark": "China 联系方式\n联系人：简嘉明小姐、凌燕柱先生\n电话: 13922299409/020-89128132 ；13922142331/89128103\nEmail: jianjm@fairwindow.com.cn \n 网址：http:/ /cacf.fairwindow.com"}, {"No": 28, "Year": 2024, "Month": "Sep", "Date": "23", "Category": "Incentive", "EventName": "Incentive Group by Thai Tian Xun Co., Ltd.", "EventWeb": null, "Organizers": "Thai Tian Xun Co., Ltd.", "OrganizerWebs": "", "NoOfEdition": null, "NoOfEditionAtVenue": null, "Venue": "IMPACT", "VenueHall": "Royal Jubilee Ballroom, IEC Hall 5 & Venus 1", "Pax": 1400.0, "Status": "Confirmed", "Remark": null}, {"No": 29, "Year": 2024, "Month": "Oct", "Date": "25-27", "Category": "Exhibition", "EventName": "Thailand International Electric Appliance Expo 2024", "EventWeb": "https://www.facebook.com/ThaillandElectricalApplianceExpo/", "Organizers": "Guangzhou Drez Exhibition Co., Ltd.", "OrganizerWebs": "https://eaefairs.com/thailand-appliance-expo/", "NoOfEdition": 1.0, "NoOfEditionAtVenue": 1.0, "Venue": "IMPACT", "VenueHall": "IEC Hall 8", "Pax": 5000.0, "Status": "Confirmed", "Remark": null}, {"No": 30, "Year": 2024, "Month": "Oct", "Date": "24-26", "Category": "Exhibition", "EventName": "Green Technology Expo 2024", "EventWeb": "https://www.pdie-expo.com/green-technology-ev-expo", "Organizers": "Council for the Promotion of International Trade Shanghai; Shanghai International Exhibition (Group) Co., Ltd.; Thai-Sino Association of Sciences and Technology", "OrganizerWebs": "https://www.cpitsh.org/cpitsh-en/index.html; https://en.ciei-expo.com/; https://tsast.org/", "NoOfEdition": 2.0, "NoOfEditionAtVenue": 2.0, "Venue": "BITEC", "VenueHall": "EH 102", "Pax": 5240.0, "Status": "Confirmed", "Remark": "try to contact Shanghai International Exhibition (Group) Co.,Ltd. to find out why the show not continue and if they are keen to organise in Thailand with Management Service of IMPACT"}, {"No": 31, "Year": 2024, "Month": "Oct", "Date": "30 Oct-01 Nov", "Category": "Exhibition", "EventName": "Secutech Thailand 2024", "EventWeb": "https://secutechthailand.tw.messefrankfurt.com/bangkok/en.html", "Organizers": "Messe Frankfurt (HK) Ltd Taiwan Media Branch", "OrganizerWebs": "https://www.tw.messefrankfurt.com/taipei/en/company.html", "NoOfEdition": 9.0, "NoOfEditionAtVenue": 5.0, "Venue": "BITEC", "VenueHall": "EH 103", "Pax": 5240.0, "Status": "Confirmed", "Remark": null}, {"No": 32, "Year": 2024, "Month": "Nov", "Date": "13", "Category": "Incentive", "EventName": "Chinese event by New Taihua Group Co., Ltd.", "EventWeb": null, "Organizers": "New Taihua Group Co., Ltd.", "OrganizerWebs": "", "NoOfEdition": null, "NoOfEditionAtVenue": null, "Venue": "IMPACT", "VenueHall": "Sapphire 204", "Pax": 100.0, "Status": "Confirmed", "Remark": null}, {"No": 33, "Year": 2024, "Month": "Nov", "Date": "13", "Category": "Incentive", "EventName": "FSP Meetinng & Dinner", "EventWeb": null, "Organizers": "New Taihua Group Co., Ltd.", "OrganizerWebs": "", "NoOfEdition": null, "NoOfEditionAtVenue": null, "Venue": "IMPACT", "VenueHall": "Portal Ballroom & Sapphire 206", "Pax": 420.0, "Status": "Confirmed", "Remark": null}, {"No": 34, "Year": 2024, "Month": "Nov", "Date": "13", "Category": "Conference", "EventName": "Labweek Snow Crash 2024 Summit", "EventWeb": null, "Organizers": "Bonsant Foundation", "OrganizerWebs": "", "NoOfEdition": null, "NoOfEditionAtVenue": null, "Venue": "IMPACT", "VenueHall": "IEC Hall 7", "Pax": 5000.0, "Status": "Confirmed", "Remark": null}, {"No": 35, "Year": 2024, "Month": "Nov", "Date": "13", "Category": "Conference", "EventName": "Labweek Snow Crash 2024 Summit", "EventWeb": null, "Organizers": "Bonsant Foundation", "OrganizerWebs": "", "NoOfEdition": null, "NoOfEditionAtVenue": null, "Venue": "IMPACT", "VenueHall": "IEC Hall 7", "Pax": 5000.0, "Status": "Confirmed", "Remark": null}, {"No": 36, "Year": 2024, "Month": "Nov", "Date": "13-15", "Category": "Exhibition", "EventName": "Asia Nonwovens Technology Expo 2024 (ANTEX Asia 2024)", "EventWeb": "https://www.antexasia.com/", "Organizers": "Baobab Tree Event Management Co., Ltd; MGT Expo Planning and Management Ltd; Tradelink Co., Ltd", "OrganizerWebs": "https://www.baobab-tree-event.com/; -; -", "NoOfEdition": 1.0, "NoOfEditionAtVenue": 1.0, "Venue": "BITEC", "VenueHall": "EH 99", "Pax": 5500.0, "Status": "Confirmed", "Remark": "No action needed . unlikely to move to IMPACT , Grace Mak Previous Management from EJK is part of the organiser who are prone to BITEC and in partnership with Baobao Tree and they already have strong . Their local partner is EXPO-INTER.NET, whose MD is Kanokwan Sukchaisri who own 2 companies BLI ( focus on Food profile exhibitions) and Expo-Inter.net ( website not work ) may be act as agents for other non food profile shows. ( contact of Thai for ANTEX Asia is panatkorn@expointer.net )"}, {"No": 37, "Year": 2024, "Month": "Nov", "Date": "21-23", "Category": "Exhibition", "EventName": "TAIWAN EXPO 2024", "EventWeb": "https://thai.taiwanexpoasean.com/en/index.html", "Organizers": "International Trade Administration /Taitra", "OrganizerWebs": "https://www.trade.gov.tw/", "NoOfEdition": 7.0, "NoOfEditionAtVenue": 1.0, "Venue": "QSNCC", "VenueHall": "Hall 5", "Pax": 5588.0, "Status": "Confirmed", "Remark": "Start: 2018-2020 at Hotel /2021 online semena /2022 @paragon hall"}, {"No": 38, "Year": 2024, "Month": "Nov", "Date": "21", "Category": "Conference", "EventName": "Wow!Taiwan X Thailand: Smart Energy Forum", "EventWeb": null, "Organizers": "Commerce Development Research Institute (CDRI)", "OrganizerWebs": "", "NoOfEdition": null, "NoOfEditionAtVenue": null, "Venue": "QSNCC", "VenueHall": "Exhibition Hall 5 Meeting Room 203", "Pax": 5588.0, "Status": "Confirmed", "Remark": null}, {"No": 39, "Year": 2024, "Month": "Dec", "Date": "15", "Category": "Incentive", "EventName": "DLB Christmas Party", "EventWeb": null, "Organizers": "IMPACT / Special Project Dept", "OrganizerWebs": "", "NoOfEdition": null, "NoOfEditionAtVenue": null, "Venue": "IMPACT", "VenueHall": "Building C, IMPACT Lakefront", "Pax": 50.0, "Status": "Confirmed", "Remark": null}, {"No": 40, "Year": 2024, "Month": "Dec", "Date": "16", "Category": "Incentive", "EventName": "Chinese Incentive by Chu Jing Co., Ltd.", "EventWeb": null, "Organizers": "Chu Jing Co., Ltd.", "OrganizerWebs": "", "NoOfEdition": null, "NoOfEditionAtVenue": null, "Venue": "IMPACT", "VenueHall": "Grand Diamond Ballroom", "Pax": 1500.0, "Status": "Confirmed", "Remark": null}, {"No": 41, "Year": 2024, "Month": "Dec", "Date": "24", "Category": "Incentive", "EventName": "Chinese Incentive (泉后)", "EventWeb": null, "Organizers": "Long Teng Inter Group Company Limited", "OrganizerWebs": "", "NoOfEdition": null, "NoOfEditionAtVenue": null, "Venue": "IMPACT", "VenueHall": "IEC Hall 6 & 7-8", "Pax": 5200.0, "Status": "Confirmed", "Remark": null}, {"No": 42, "Year": 2024, "Month": "Dec", "Date": "28", "Category": "Concert", "EventName": "2024-2025 Dylan Wang D.Party Concert in Bangkok", "EventWeb": null, "Organizers": "iMe Productions (Thailand) Co., Ltd.", "OrganizerWebs": "", "NoOfEdition": null, "NoOfEditionAtVenue": null, "Venue": "IMPACT", "VenueHall": "IMPACT Arena", "Pax": 11000.0, "Status": "Confirmed", "Remark": null}, {"No": 43, "Year": 2024, "Month": "Dec", "Date": "28", "Category": "Concert", "EventName": "2024-2025 Dylan Wang D.Party Concert in Bangkok", "EventWeb": null, "Organizers": "iMe Productions (Thailand) Co., Ltd.", "OrganizerWebs": "", "NoOfEdition": null, "NoOfEditionAtVenue": null, "Venue": "IMPACT", "VenueHall": "IMPACT Arena", "Pax": 11000.0, "Status": "Confirmed", "Remark": null}, {"No": 44, "Year": 2025, "Month": "Jan", "Date": "10", "Category": "Incentive", "EventName": "Chinese Incentive by Hongkong Evergrande Travel", "EventWeb": null, "Organizers": "Hongkong Evergrande Travel ( Thailand ) Co., Ltd.", "OrganizerWebs": "", "NoOfEdition": null, "NoOfEditionAtVenue": null, "Venue": "IMPACT", "VenueHall": "Royal Jubilee Ballroom", "Pax": 1450.0, "Status": "Confirmed", "Remark": null}, {"No": 45, "Year": 2025, "Month": "Jan", "Date": "10", "Category": "Incentive", "EventName": "Incentive Group by Wanguo International Group Co., Ltd.", "EventWeb": null, "Organizers": "Wanguo International Group Co., Ltd.", "OrganizerWebs": "", "NoOfEdition": null, "NoOfEditionAtVenue": null, "Venue": "IMPACT", "VenueHall": "IEC Hall 8", "Pax": 1700.0, "Status": "Confirmed", "Remark": null}, {"No": 46, "Year": 2025, "Month": "Feb", "Date": "16-18", "Category": "Conference", "EventName": "The 18th Global Freight Forwarders Conference", "EventWeb": null, "Organizers": "JC Trans", "OrganizerWebs": "", "NoOfEdition": null, "NoOfEditionAtVenue": null, "Venue": "QSNCC", "VenueHall": "Hall 1-4", "Pax": 20000.0, "Status": "Confirmed", "Remark": "City center, but for 2024 they didn't ask for impact quotation. They only asked for 2025 one, however after surveying, most of their attendees prefer to be in the city center. Therefore they chose QSNCC at the end."}, {"No": 47, "Year": 2025, "Month": "Mar", "Date": "6-8", "Category": "Exhibition", "EventName": "2025 Intelligent Asia Thailand", "EventWeb": "https://intelligentasia-thailand.chanchao.com.tw/", "Organizers": "Yorkers Trade & Marketing Service Co., Ltd.; Messe Frankfurt (HK) Ltd, Taiwan Branch; GMTX Company Limited", "OrganizerWebs": "https://www.chanchao.com.tw/en/; https://www.tw.messefrankfurt.com/taipei/zh-tw.html; https://www.greenworldmedia.co.th/", "NoOfEdition": 2.0, "NoOfEditionAtVenue": 2.0, "Venue": "BITEC", "VenueHall": "EH 102 – 103", "Pax": 10480.0, "Status": "Confirmed", "Remark": null}, {"No": 48, "Year": 2025, "Month": "Mar", "Date": "TBC", "Category": "Exhibition", "EventName": "ASEAN (Bangkok) Energy Storage & Smart Energy Expo ASEAN (Bangkok) HVAC & Cleanroom Industry Expo", "EventWeb": "https://www.aseancleanenergyexpo.com/", "Organizers": "Guangdong Grandeur International Exhibition Group Co., Ltd.; Compass Exhibition Co.,Ltd.", "OrganizerWebs": "www.cgff.net; https://www.facebook.com/compassexhibitionthailand/#", "NoOfEdition": 1.0, "NoOfEditionAtVenue": 1.0, "Venue": "IMPACT", "VenueHall": "IEC Hall 7-8", "Pax": 10000.0, "Status": "Confirmed", "Remark": null}, {"No": 49, "Year": 2025, "Month": "Apr", "Date": "6-7", "Category": "Incentive", "EventName": "Chinese Incentive by New Taihua", "EventWeb": null, "Organizers": "New Taihua Group Co., Ltd.", "OrganizerWebs": "", "NoOfEdition": null, "NoOfEditionAtVenue": null, "Venue": "IMPACT", "VenueHall": "Royal Jubilee Ballroom, Sapphire 204, Portal Ballroom & Jupiter 4-11", "Pax": 1770.0, "Status": "Confirmed", "Remark": null}, {"No": 50, "Year": 2025, "Month": "Apr", "Date": "12", "Category": "Concert", "EventName": "Yifeng Li The Covenant of the Green Sea Concert - Bangkok Station", "EventWeb": null, "Organizers": "Do Concert Co., Ltd.", "OrganizerWebs": "", "NoOfEdition": null, "NoOfEditionAtVenue": null, "Venue": "IMPACT", "VenueHall": "IMPACT Arena", "Pax": 11000.0, "Status": "Confirmed", "Remark": null}, {"No": 51, "Year": 2025, "Month": "Apr", "Date": "25", "Category": "Incentive", "EventName": "Chinese Incentive by Hongkong Evergrande Travel", "EventWeb": null, "Organizers": "Hongkong Evergrande Travel (Thailand) Co., Ltd.", "OrganizerWebs": "", "NoOfEdition": null, "NoOfEditionAtVenue": null, "Venue": "IMPACT", "VenueHall": "Grand Diamond Ballroom", "Pax": 800.0, "Status": "Confirmed", "Remark": null}, {"No": 52, "Year": 2025, "Month": "May", "Date": "17", "Category": "Incentive", "EventName": "Infinitus 2025", "EventWeb": null, "Organizers": "Quality Express (Agent), Huiyue (Oversea agent)", "OrganizerWebs": "", "NoOfEdition": null, "NoOfEditionAtVenue": null, "Venue": "QSNCC", "VenueHall": "Plenary 1-4", "Pax": 4540.0, "Status": "Confirmed", "Remark": "They are only looking at ballroom or room that with good decoration. They considered Royal Jubilee Ballroom, however number of pax had reached 2500 pax, which we cannot fit them in for dinner, therefore they chose QSNCC at the end."}, {"No": 53, "Year": 2025, "Month": "May", "Date": "18", "Category": "Incentive", "EventName": "2025 Global Artificial Intelligence Innovation Summit", "EventWeb": null, "Organizers": "New Tai Hua", "OrganizerWebs": "", "NoOfEdition": null, "NoOfEditionAtVenue": null, "Venue": "QSNCC", "VenueHall": "Plenary 1-4", "Pax": 4540.0, "Status": "Confirmed", "Remark": "New Tai Hua mentioned that this company, their direct competitor chose IMPACT RJ ballroom for their event in April 25, therefore they dont want to do at the same place and chose QSNCC>"}, {"No": 54, "Year": 2025, "Month": "Jun", "Date": "4-6", "Category": "Exhibition", "EventName": "CIOSH Thailand 2025", "EventWeb": "-", "Organizers": "CIOSH Asia Co., Ltd. / China Textile Commerce Association", "OrganizerWebs": "https://www.ciosh-thailand.com/", "NoOfEdition": 2.0, "NoOfEditionAtVenue": 2.0, "Venue": "BITEC", "VenueHall": "EH 103 - 104", "Pax": 9580.0, "Status": "Confirmed", "Remark": null}, {"No": 56, "Year": 2025, "Month": "Jun", "Date": "5-6", "Category": "Exhibition", "EventName": "The ASEAN Pan-Asia China Commodities Exhibition 2025 BITEC China Food Exhibition", "EventWeb": "-", "Organizers": "BITEC & Chinese Partners", "OrganizerWebs": "https://www.bitec.co.th/event/the-aseana-pan-asia-china-commodities-exhibition-2025", "NoOfEdition": 1.0, "NoOfEditionAtVenue": 1.0, "Venue": "BITEC", "VenueHall": "EH 101", "Pax": 5480.0, "Status": "Confirmed", "Remark": "No Action needed, seem this is the 50th Sino-Thai relation one off event . No official website and not much post event coverage ."}, {"No": 57, "Year": 2025, "Month": "Jun", "Date": "11", "Category": "Incentive", "EventName": "Chinese Incentive by Taixingwang Travel Group Co., Ltd.", "EventWeb": null, "Organizers": "Taixingwang Travel Group Co., Ltd.", "OrganizerWebs": "", "NoOfEdition": null, "NoOfEditionAtVenue": null, "Venue": "IMPACT", "VenueHall": "Hall 5", "Pax": 2500.0, "Status": "Confirmed", "Remark": null}, {"No": 58, "Year": 2025, "Month": "Jun", "Date": "11-13", "Category": "Exhibition", "EventName": "The 2nd OCTF (Bangkok) Intelligent Technology Exhibition", "EventWeb": "https://www.facebook.com/OCTFThailand/about_contact_and_basic_info", "Organizers": "Shenzhen Investment Management of OCTF Co., Ltd.", "OrganizerWebs": "https://www.facebook.com/OCTFThailand/about_contact_and_basic_info", "NoOfEdition": 2.0, "NoOfEditionAtVenue": 1.0, "Venue": "IMPACT", "VenueHall": "Hall 8", "Pax": 5000.0, "Status": "Confirmed", "Remark": "1st @QSNCC"}, {"No": 59, "Year": 2025, "Month": "Jul", "Date": "10-12", "Category": "Exhibition", "EventName": "2025 Asia Fashion (Thailand) Show", "EventWeb": "https://www.af-show.com/en", "Organizers": "Guangdong Qiya Exhibition Technology Co., Ltd.", "OrganizerWebs": "https://www.facebook.com/QiyaExpo/", "NoOfEdition": 3.0, "NoOfEditionAtVenue": 3.0, "Venue": "BITEC", "VenueHall": "EH 102 - 104", "Pax": 14820.0, "Status": "Confirmed", "Remark": "Elena 丽婷\n18529301702\naf@chfair.com\n\nJoey Yu (Marketing)\nEmail: yujiayi@chafair.com\nPhone: +86 136 5281 4101"}, {"No": 60, "Year": 2025, "Month": "Jul", "Date": "16-18", "Category": "Exhibition", "EventName": "Mega Show Bangkok 2025", "EventWeb": "https://www.megashowbangkok.com/index.html", "Organizers": "Comasia Limited", "OrganizerWebs": "www.comasia.com.hk", "NoOfEdition": 7.0, "NoOfEditionAtVenue": 7.0, "Venue": "BITEC", "VenueHall": "EH 98-101", "Pax": 26180.0, "Status": "Confirmed", "Remark": "Location and also exhibitor opinion, they preferred to stay at BITEC for Year 2025"}, {"No": 61, "Year": 2025, "Month": "Jul", "Date": "23-25", "Category": "Exhibition", "EventName": "CIAME Asia 2025", "EventWeb": "https://en.camf.com.cn/", "Organizers": "China Agricultural Machinery Distribution Association (CAMDA) 中国农业机械流通协会; 中国农业机械工业协会; 中国农业机械化协会", "OrganizerWebs": "https://www.camda.cn/; http://www.caamm.com/; http://www.cama.org.cn/", "NoOfEdition": 1.0, "NoOfEditionAtVenue": 1.0, "Venue": "IMPACT", "VenueHall": "Hall 8", "Pax": 5000.0, "Status": "Confirmed", "Remark": null}, {"No": 62, "Year": 2025, "Month": "Jul", "Date": "26 & 28", "Category": "Incentive", "EventName": "World Mathematics Invitational 2025 (WMI) Awards Ceremony", "EventWeb": null, "Organizers": "C.C.T. Express Co., Ltd.", "OrganizerWebs": "", "NoOfEdition": null, "NoOfEditionAtVenue": null, "Venue": "IMPACT", "VenueHall": "Hall 6, Royal Jubilee Ballroom", "Pax": 1500.0, "Status": "Confirmed", "Remark": null}, {"No": 63, "Year": 2025, "Month": "Aug", "Date": "16", "Category": "Incentive", "EventName": "WEIBO CULTURAL EXCHANGE NIGHT 2025（2025 微博文化交流之夜）", "EventWeb": null, "Organizers": "Weibo & HydroIndus", "OrganizerWebs": "", "NoOfEdition": null, "NoOfEditionAtVenue": null, "Venue": "QSNCC", "VenueHall": "Ballroom 1-4", "Pax": 4615.0, "Status": "Confirmed", "Remark": null}, {"No": 64, "Year": 2025, "Month": "Sep", "Date": "2-4", "Category": "Exhibition", "EventName": "ASEAN SHOP 2025", "EventWeb": "https://www.aseanshopexpo.com/", "Organizers": "Guangdong Grandeur International Exhibition Group Co., Ltd.; Compass Exhibition Co.,Ltd.", "OrganizerWebs": "https://www.facebook.com/compassexhibitionthailand/#", "NoOfEdition": 1.0, "NoOfEditionAtVenue": 1.0, "Venue": "IMPACT", "VenueHall": "IEC Hall 6-7", "Pax": 10000.0, "Status": "Confirmed", "Remark": null}, {"No": 65, "Year": 2025, "Month": "Sep", "Date": "17-19", "Category": "Exhibition", "EventName": "The 12th China ASEAN (Thailand) Commodity Fair", "EventWeb": "https://www.facebook.com/cacfthailand/about", "Organizers": "China Foreign Trade Centre", "OrganizerWebs": "https://www.cfte.com/", "NoOfEdition": 12.0, "NoOfEditionAtVenue": 6.0, "Venue": "BITEC", "VenueHall": "EH 99", "Pax": 5500.0, "Status": "Confirmed", "Remark": null}, {"No": 66, "Year": 2025, "Month": "Sep", "Date": "26-28", "Category": "Special Project", "EventName": "Thailand Global Food Expo & Thailand - China Cooperation Expo 2025", "EventWeb": null, "Organizers": "Thai Chamber of Commerce/IMPACT / Special Project Dept", "OrganizerWebs": "", "NoOfEdition": null, "NoOfEditionAtVenue": null, "Venue": "IMPACT", "VenueHall": "Challenger 1-3", "Pax": 60000.0, "Status": "Confirmed", "Remark": null}, {"No": 67, "Year": 2025, "Month": "Oct", "Date": "9-11", "Category": "Exhibition", "EventName": "ASEAN Int'l Optics Fair", "EventWeb": "https://www.opticsfair.com/", "Organizers": "Shanghai Donnor Exhibition Co., Ltd (Headquarter) 德纳展览; Wenzhou Broad Exhibition Service Co., Ltd. 博观会展", "OrganizerWebs": "https://www.donnor.com/en/; http://www.broad-expo.com/", "NoOfEdition": 1.0, "NoOfEditionAtVenue": 1.0, "Venue": "IMPACT", "VenueHall": "Hall 5-6", "Pax": 10000.0, "Status": "Confirmed", "Remark": null}, {"No": 68, "Year": 2025, "Month": "Oct", "Date": "15-17", "Category": "Exhibition", "EventName": "Thailand Amusement & Attraction Parks Expo (TAAPE) & Thailand Billiards Expo (TBE)", "EventWeb": "https://www.taapeexpo.com/", "Organizers": "Guangdong Grandeur International Exhibition Group Co., Ltd.; Compass Exhibition Co.,Ltd.", "OrganizerWebs": "www.cgff.net; https://www.facebook.com/compassexhibitionthailand/#", "NoOfEdition": 2.0, "NoOfEditionAtVenue": 2.0, "Venue": "IMPACT", "VenueHall": "IEC Hall 6-7", "Pax": 10000.0, "Status": "Confirmed", "Remark": null}, {"No": 69, "Year": 2025, "Month": "Oct", "Date": "29-31", "Category": "Exhibition", "EventName": "Asia Nonwovens Technology Expo 2025 (ANTEX Asia 2025)", "EventWeb": "https://www.antexasia.com/", "Organizers": "Baobab Tree Event Management Co., Ltd; MGT Expo Planning and Management Ltd; Tradelink Co., Ltd", "OrganizerWebs": "https://www.baobab-tree-event.com/; -; -", "NoOfEdition": 2.0, "NoOfEditionAtVenue": 2.0, "Venue": "BITEC", "VenueHall": "EH 102", "Pax": 5240.0, "Status": "Confirmed", "Remark": null}, {"No": 70, "Year": 2025, "Month": "Oct", "Date": "Sep or Oct", "Category": "Incentive", "EventName": "Chinese KOL Seminar by Thai Wan Xiang", "EventWeb": null, "Organizers": "Thai Wan Xiang", "OrganizerWebs": "", "NoOfEdition": null, "NoOfEditionAtVenue": null, "Venue": "IMPACT", "VenueHall": "RJ ballroom and 15-20 breakout rooms", "Pax": 1000.0, "Status": "Request/Inquiry", "Remark": null}, {"No": 71, "Year": 2025, "Month": "Nov", "Date": "28-30", "Category": "Exhibition", "EventName": "2025 Asia Building (Thailand) Expo", "EventWeb": "https://www.asia-build.com/", "Organizers": "Guangdong Qiya Exhibition Technology Co., Ltd.", "OrganizerWebs": "https://www.facebook.com/QiyaExpo/", "NoOfEdition": 1.0, "NoOfEditionAtVenue": 1.0, "Venue": "BITEC", "VenueHall": "EH 101", "Pax": 5480.0, "Status": "Confirmed", "Remark": null}, {"No": 72, "Year": 2025, "Month": "Nov", "Date": "TBC", "Category": "Exhibition", "EventName": "Secutech Thailand 2025", "EventWeb": "https://secutechthailand.tw.messefrankfurt.com/bangkok/en.html", "Organizers": "Messe Frankfurt (HK) Ltd Taiwan Media Branch", "OrganizerWebs": "https://www.tw.messefrankfurt.com/taipei/en/company.html", "NoOfEdition": 10.0, "NoOfEditionAtVenue": 1.0, "Venue": "QSNCC", "VenueHall": "Hall 3-4 LevelG", "Pax": 11105.0, "Status": "Confirmed", "Remark": "2017 - 2019 Bitec // 2020-2022 Covid19 // 2023-2024 Bitec"}, {"No": 73, "Year": 2025, "Month": "Nov", "Date": "09-11", "Category": "Conference", "EventName": "We Are the World Bangkok 2025 – Global Biohealth, AI Innovation & Traditional Medicine Fusion Cooperation Summit", "EventWeb": null, "Organizers": "We Are the World", "OrganizerWebs": "", "NoOfEdition": null, "NoOfEditionAtVenue": null, "Venue": "QSNCC", "VenueHall": "Meeting Room 101-120", "Pax": null, "Status": "Confirmed", "Remark": null}, {"No": 74, "Year": 2026, "Month": "Jan", "Date": "26", "Category": "Incentive", "EventName": "Chinese Incentive by Thai Wan Xiang or Feng Run", "EventWeb": null, "Organizers": "Hongkong Evergrande Travel ( Thailand ) Co., Ltd.", "OrganizerWebs": "", "NoOfEdition": null, "NoOfEditionAtVenue": null, "Venue": "IMPACT", "VenueHall": "Hall 5 or Royal Jubilee Ballroom", "Pax": 2500.0, "Status": "Request/Inquiry", "Remark": null}, {"No": 75, "Year": 2026, "Month": "Mar", "Date": "11-13", "Category": "Exhibition", "EventName": "Intelligent Asia Thailand 2026", "EventWeb": "https://intelligentasia-thailand.chanchao.com.tw/", "Organizers": "Yorkers Trade & Marketing Service Co., Ltd.; Messe Frankfurt (HK) Ltd, Taiwan Branch; GMTX Company Limited", "OrganizerWebs": "https://www.chanchao.com.tw/en/; https://www.tw.messefrankfurt.com/taipei/zh-tw.html; https://www.greenworldmedia.co.th/", "NoOfEdition": 3.0, "NoOfEditionAtVenue": 3.0, "Venue": "BITEC", "VenueHall": "EH 98", "Pax": 8600.0, "Status": "Confirmed", "Remark": null}, {"No": 76, "Year": 2026, "Month": "Mar", "Date": "25-27", "Category": "Exhibition", "EventName": "ARC-ASEAN RHVAC & Cleanroom Industry Expo ASEE-ASEAN SMART ENERGY & ENERGY STORAGE EXPO", "EventWeb": "https://www.aseanhvacexpo.com/", "Organizers": "Guangdong Grandeur International Exhibition Group Co., Ltd.; Compass Exhibition Co.,Ltd.", "OrganizerWebs": "www.cgff.net; https://www.facebook.com/compassexhibitionthailand/#", "NoOfEdition": 2.0, "NoOfEditionAtVenue": 2.0, "Venue": "IMPACT", "VenueHall": "Hall 11-12", "Pax": 13500.0, "Status": "Confirmed", "Remark": "4480000"}, {"No": 77, "Year": 2026, "Month": "May", "Date": "Apr or May", "Category": "Incentive", "EventName": "Herbalife 2026", "EventWeb": null, "Organizers": "TBC", "OrganizerWebs": "", "NoOfEdition": null, "NoOfEditionAtVenue": null, "Venue": "IMPACT", "VenueHall": "Challenger or IEC", "Pax": 12000.0, "Status": "Request/Inquiry", "Remark": null}, {"No": 78, "Year": 2026, "Month": "May", "Date": "19-20", "Category": "Exhibition", "EventName": "Shanghai Fair Healthcare Thailand & Malaysia", "EventWeb": "https://shanghaifair.net/", "Organizers": "Shanghai Federation of Economic Organizations, abbreviation: SFEO  上海市工业经济联合会; Shanghai Sail International Convention and Exhibition Co., Ltd 海上之帆会展（上海）有限公司", "OrganizerWebs": "http://www.sfeo.org/; http://www.sailofshanghai.com/", "NoOfEdition": 3.0, "NoOfEditionAtVenue": 3.0, "Venue": "BITEC", "VenueHall": "BHIRAJ Hall 1 – 3", "Pax": 3300.0, "Status": "Confirmed", "Remark": null}, {"No": 79, "Year": 2026, "Month": "Jun", "Date": "3-5", "Category": "Exhibition", "EventName": "2026 Bangkok Building Materials, Furniture, and Hotel Supplies Expo", "EventWeb": "-", "Organizers": "Changsha Fulcrum Exhibition Planning; \"Thailand-ASEAN Economic and Trade Promotion Association\nThai-China Fulcrum Co., Ltd\"", "OrganizerWebs": "http://www.zdcsjbh.com/; -", "NoOfEdition": 1.0, "NoOfEditionAtVenue": 1.0, "Venue": "IMPACT", "VenueHall": "Hall 7", "Pax": 5000.0, "Status": "Confirmed", "Remark": "3800000"}, {"No": 80, "Year": 2026, "Month": "Jul", "Date": "1-3", "Category": "Exhibition", "EventName": "ASEAN Refrigeration, Air Conditioning, Ventilation and Cold Chain Technology Expo", "EventWeb": "https://www.raccasean.com/", "Organizers": "NurnbergMesse China Co., Ltd.", "OrganizerWebs": "https://www.nm-china.com.cn/web/en/", "NoOfEdition": 1.0, "NoOfEditionAtVenue": 1.0, "Venue": "IMPACT", "VenueHall": "Hall 6", "Pax": 5000.0, "Status": "Confirmed", "Remark": "2720000"}, {"No": 81, "Year": 2026, "Month": "Jul", "Date": "09-11", "Category": "Exhibition", "EventName": "2026 Asia Fashion (Thailand) Show", "EventWeb": "https://www.af-show.com/en", "Organizers": "Guangdong Qiya Exhibition Technology Co., Ltd.", "OrganizerWebs": "https://www.facebook.com/QiyaExpo/", "NoOfEdition": 4.0, "NoOfEditionAtVenue": 4.0, "Venue": "BITEC", "VenueHall": "EH 102 - 104", "Pax": 14840.0, "Status": "Confirmed", "Remark": "No Action needed, seem this is the 50th Sino-Thai relation one off event . No official website and not much post event coverage ."}, {"No": 82, "Year": 2026, "Month": "Jul", "Date": "15-17", "Category": "Exhibition", "EventName": "MEGA SHOW Bangkok   Mega Halal, a part of Mega Show Bangkok", "EventWeb": "https://www.megashowbangkok.com/index.html", "Organizers": "Comasia Limited", "OrganizerWebs": "www.comasia.com.hk", "NoOfEdition": 8.0, "NoOfEditionAtVenue": 1.0, "Venue": "QSNCC", "VenueHall": "Hall 5–8,   Level LG", "Pax": 22750.0, "Status": "Confirmed", "Remark": null}, {"No": 83, "Year": 2026, "Month": "Jul", "Date": "22-24", "Category": "Exhibition", "EventName": "2026东南亚（泰国）智能制造博览会（IME2026）  Intelligent Manufacturing Expo Southeast Asia 2026", "EventWeb": "https://www.imesea.com/86-010-64404683", "Organizers": "Donghao Lansheng", "OrganizerWebs": "https://www.dlg-expo.com/HomeEn/Detail", "NoOfEdition": 1.0, "NoOfEditionAtVenue": 1.0, "Venue": "IMPACT", "VenueHall": "Hall 6", "Pax": 5000.0, "Status": "Confirmed", "Remark": "7600000"}, {"No": 84, "Year": 2026, "Month": "Jul", "Date": "22-24", "Category": "Special Project", "EventName": "3th Overseas Chinese Trade Fair (OCTF) Bangkok 2026", "EventWeb": null, "Organizers": "Shenzhen Investment Management of OCTF Co., Ltd.", "OrganizerWebs": "", "NoOfEdition": 3.0, "NoOfEditionAtVenue": 2.0, "Venue": "IMPACT", "VenueHall": "Challenger Hall", "Pax": null, "Status": "Confirmed", "Remark": null}, {"No": 85, "Year": 2026, "Month": "Sep", "Date": "2-4", "Category": "Exhibition", "EventName": "2026东盟国际机械设备与技术展览会 (ASEAN-MTXP) ASEAN International Machinery, Equipment & Technology Exhibition", "EventWeb": "https://www.amtxp.com/", "Organizers": "Zhejiang Donnor International Exhibition Co., Ltd.; Wenzhou Broad Exhibition Service Co., Ltd. 博观会展", "OrganizerWebs": "https://www.donnor.com/en/; http://www.broad-expo.com/", "NoOfEdition": 1.0, "NoOfEditionAtVenue": 1.0, "Venue": "IMPACT", "VenueHall": "Hall 5-6", "Pax": 8000.0, "Status": "Confirmed", "Remark": "3200000"}, {"No": 86, "Year": 2026, "Month": "Sep", "Date": "2-4", "Category": "Exhibition", "EventName": "The 13th China-ASEAN (Thailand) Commodity Fair", "EventWeb": "https://www.facebook.com/cacfthailand/about", "Organizers": "China Foreign Trade Centre", "OrganizerWebs": "https://www.cfte.com/", "NoOfEdition": 13.0, "NoOfEditionAtVenue": 7.0, "Venue": "BITEC", "VenueHall": "TBC", "Pax": 8600.0, "Status": "Confirmed", "Remark": null}, {"No": 87, "Year": 2026, "Month": "Oct", "Date": "14-16", "Category": "Exhibition", "EventName": "Metal Thailand 2026", "EventWeb": "https://www.expochina.cn/expo/100009", "Organizers": "China Foundry Association 中国铸造协会; CHINA HEAT TREATMENT ASSOCIATION (CHTA) 中国热处理行业协会; ChinaWeldingAssociation (CWA) 中国焊接协会", "OrganizerWebs": "https://www.foundry.org.cn/; http://www.chta.org.cn/xhgb-website/index; http://www.china-weldnet.com/", "NoOfEdition": 2.0, "NoOfEditionAtVenue": 2.0, "Venue": "BITEC", "VenueHall": "TBC", "Pax": 5240.0, "Status": "Confirmed", "Remark": null}, {"No": 88, "Year": 2026, "Month": "Oct", "Date": "28-30", "Category": "Exhibition", "EventName": "Hot Pots World 2026", "EventWeb": "-", "Organizers": "KEME Exhibitions Ltd 旗米展覽有限公司", "OrganizerWebs": "https://hotpotsworld.com/", "NoOfEdition": 1.0, "NoOfEditionAtVenue": 1.0, "Venue": "BITEC", "VenueHall": "TBC", "Pax": 5240.0, "Status": "Confirmed", "Remark": null}, {"No": 89, "Year": 2026, "Month": "Oct", "Date": "TBC", "Category": "Exhibition", "EventName": "东盟国际眼镜展 ASEAN Int'l Optics Fair 2026", "EventWeb": "https://www.opticsfair.com/", "Organizers": "Shanghai Donnor Exhibition Co., Ltd (Headquarter) 德纳展览; Wenzhou Broad Exhibition Service Co., Ltd. 博观会展", "OrganizerWebs": "https://www.donnor.com/en/; http://www.broad-expo.com/", "NoOfEdition": 2.0, "NoOfEditionAtVenue": 2.0, "Venue": "IMPACT", "VenueHall": "Hall 5-6", "Pax": 10000.0, "Status": "Confirmed", "Remark": "6400000"}, {"No": 90, "Year": 2026, "Month": "Nov", "Date": "18-20", "Category": "Exhibition", "EventName": "Secutech Thailand 2026", "EventWeb": "https://secutechthailand.tw.messefrankfurt.com/bangkok/en.html", "Organizers": "Messe Frankfurt (HK) Ltd Taiwan Media Branch", "OrganizerWebs": "https://www.tw.messefrankfurt.com/taipei/en/company.html", "NoOfEdition": 11.0, "NoOfEditionAtVenue": 2.0, "Venue": "QSNCC", "VenueHall": "Hall 3-4,   Level G", "Pax": 11105.0, "Status": "Confirmed", "Remark": null}, {"No": 91, "Year": 2026, "Month": "Oct", "Date": "29-31", "Category": "Exhibition", "EventName": "Thailand Amusement & Attraction Parks Expo (TAAPE) 2026 Thailand Billiards Expo (TBE)", "EventWeb": "https://www.taapeexpo.com/", "Organizers": "Guangdong Grandeur International Exhibition Group Co., Ltd.; Compass Exhibition Co.,Ltd.", "OrganizerWebs": "www.cgff.net; https://www.facebook.com/compassexhibitionthailand/#", "NoOfEdition": 3.0, "NoOfEditionAtVenue": 3.0, "Venue": "IMPACT", "VenueHall": "Hall 9-10", "Pax": 13500.0, "Status": "Confirmed", "Remark": null}, {"No": 92, "Year": 2026, "Month": "Nov", "Date": "19-21", "Category": "Exhibition", "EventName": "Liang Zhi Long - Food showThailand International Food and Catering Expo (TIFACE)", "EventWeb": "https://www.globalseafoodex.com/", "Organizers": "Liang Zhi Long (Wuhan)", "OrganizerWebs": "https://lzlchinafood.com/", "NoOfEdition": 1.0, "NoOfEditionAtVenue": 1.0, "Venue": "IMPACT", "VenueHall": "Hall 5 or 6", "Pax": 5000.0, "Status": "Confirmed", "Remark": null}, {"No": 93, "Year": 2026, "Month": "Nov", "Date": "25-26", "Category": "Exhibition", "EventName": "Asia Nonwovens Technology Expo 2026 (ANTEX Asia 2026)", "EventWeb": "https://www.antexasia.com/", "Organizers": "Baobab Tree Event Management Co., Ltd; MGT Expo Planning and Management Ltd; Tradelink Co., Ltd", "OrganizerWebs": "https://www.baobab-tree-event.com/; -; -", "NoOfEdition": 3.0, "NoOfEditionAtVenue": 3.0, "Venue": "BITEC", "VenueHall": "EH 104", "Pax": 4360.0, "Status": "Confirmed", "Remark": null}, {"No": 94, "Year": 2026, "Month": "Dec", "Date": "3-4", "Category": "Exhibition", "EventName": "Hardware Fastener Expo Thailand 2026", "EventWeb": "-", "Organizers": "Jinbo 紧博(浙江)会展股份有限公司", "OrganizerWebs": "-", "NoOfEdition": 1.0, "NoOfEditionAtVenue": 1.0, "Venue": "IMPACT", "VenueHall": "Hall 8", "Pax": 5000.0, "Status": "Confirmed", "Remark": "2720000"}];
+
+const MONTH_ORDER = {Jan:1,Feb:2,Mar:3,Apr:4,May:5,Jun:6,Jul:7,Aug:8,Sep:9,Oct:10,Nov:11,Dec:12};
+
+const state = { year:'All', venue:'All', category:'All', status:'All', q:'' };
+let openCardId = null;
+
+function fmtPax(p){
+  if(p===null || p===undefined) return '—';
+  return p.toLocaleString('en-US');
+}
+
+function categorySlug(c){ return (c||'').replace(/\s+/g,''); }
+
+function buildChips(containerId, field, labelAll){
+  const el = document.getElementById(containerId);
+  const values = {};
+  RAW_DATA.forEach(d=>{
+    const v = d[field];
+    if(v===null || v===undefined) return;
+    values[v] = (values[v]||0)+1;
+  });
+  const keys = Object.keys(values).sort((a,b)=>{
+    if(field==='Year') return a-b;
+    if(field==='Month') return MONTH_ORDER[a]-MONTH_ORDER[b];
+    return values[b]-values[a];
+  });
+  let html = `<div class="chip active" data-val="All">${labelAll} <span class="count">${RAW_DATA.length}</span></div>`;
+  keys.forEach(k=>{
+    html += `<div class="chip" data-val="${k}">${k} <span class="count">${values[k]}</span></div>`;
+  });
+  el.innerHTML = html;
+  el.querySelectorAll('.chip').forEach(chip=>{
+    chip.addEventListener('click', ()=>{
+      el.querySelectorAll('.chip').forEach(c=>c.classList.remove('active'));
+      chip.classList.add('active');
+      state[fieldToStateKey(field)] = chip.dataset.val;
+      render();
+    });
+  });
+}
+
+function fieldToStateKey(field){
+  return {Year:'year', Venue:'venue', Category:'category', Status:'status'}[field];
+}
+
+function getFiltered(){
+  const q = state.q.trim().toLowerCase();
+  return RAW_DATA.filter(d=>{
+    if(state.year!=='All' && String(d.Year)!==String(state.year)) return false;
+    if(state.venue!=='All' && d.Venue!==state.venue) return false;
+    if(state.category!=='All' && d.Category!==state.category) return false;
+    if(state.status!=='All' && d.Status!==state.status) return false;
+    if(q){
+      const hay = [d.EventName,d.Organizers,d.VenueHall,d.Venue,d.Category].join(' ').toLowerCase();
+      if(!hay.includes(q)) return false;
+    }
+    return true;
+  }).sort((a,b)=>{
+    if(a.Year!==b.Year) return a.Year-b.Year;
+    const ma = MONTH_ORDER[a.Month]||0, mb = MONTH_ORDER[b.Month]||0;
+    if(ma!==mb) return ma-mb;
+    return a.No-b.No;
+  });
+}
+
+function renderStats(){
+  const total = RAW_DATA.length;
+  const confirmed = RAW_DATA.filter(d=>d.Status==='Confirmed').length;
+  const totalPax = RAW_DATA.reduce((s,d)=>s+(d.Pax||0),0);
+  const venues = new Set(RAW_DATA.map(d=>d.Venue)).size;
+  const years = [...new Set(RAW_DATA.map(d=>d.Year))].sort();
+  const tiles = [
+    {num: total, label:'Total Events', cls:''},
+    {num: confirmed, sub:`/${total}`, label:'Confirmed', cls:'accent-jade'},
+    {num: Math.round(totalPax/1000)+'K', label:'Total Attendees (est.)', cls:'accent-seal'},
+    {num: venues, label:'Venues Tracked', cls:''},
+    {num: years[0]+'–'+years[years.length-1], label:'Coverage Period', cls:''},
+  ];
+  document.getElementById('statTiles').innerHTML = tiles.map(t=>`
+    <div class="flip-tile ${t.cls}">
+      <div class="num">${t.num}${t.sub?`<small>${t.sub}</small>`:''}</div>
+      <div class="lbl">${t.label}</div>
+    </div>`).join('');
+}
+
+function renderBreakdowns(filtered){
+  const groups = {
+    'By Venue': tally(filtered,'Venue'),
+    'By Category': tally(filtered,'Category'),
+    'By Year': tallyYear(filtered),
+  };
+  const el = document.getElementById('breakdowns');
+  el.innerHTML = Object.entries(groups).map(([title, rows])=>{
+    const max = Math.max(1,...rows.map(r=>r.count));
+    return `<div class="bd-card">
+      <div class="bd-title">${title}</div>
+      ${rows.map(r=>`
+        <div class="bd-row">
+          <div class="bd-name" title="${r.key}">${r.key}</div>
+          <div class="bd-track"><div class="bd-fill" style="width:${(r.count/max*100).toFixed(0)}%"></div></div>
+          <div class="bd-val">${r.count}</div>
+        </div>`).join('')}
+    </div>`;
+  }).join('');
+}
+
+function tally(arr, field){
+  const m = {};
+  arr.forEach(d=>{ if(d[field]) m[d[field]]=(m[d[field]]||0)+1; });
+  return Object.entries(m).sort((a,b)=>b[1]-a[1]).map(([key,count])=>({key,count}));
+}
+function tallyYear(arr){
+  const m = {};
+  arr.forEach(d=>{ if(d.Year) m[d.Year]=(m[d.Year]||0)+1; });
+  return Object.entries(m).sort((a,b)=>a[0]-b[0]).map(([key,count])=>({key,count}));
+}
+
+function renderCards(filtered){
+  const container = document.getElementById('cardsContainer');
+  document.getElementById('emptyState').style.display = filtered.length? 'none':'block';
+  document.getElementById('resultCount').textContent = filtered.length;
+  document.getElementById('totalCount').textContent = RAW_DATA.length;
+
+  container.innerHTML = filtered.map(d=>{
+    const isOpen = openCardId===d.No;
+    const stampCls = d.Status==='Confirmed' ? '' : 'inquiry';
+    const tagCls = 'tag-'+categorySlug(d.Category);
+    return `
+    <div class="event-card ${isOpen?'open':''}" data-id="${d.No}">
+      <div class="card-main">
+        <div class="stub-date"><span class="yr">${d.Year||''}</span>${d.Month||''} ${d.Date||''}</div>
+        <div class="card-title">
+          <div class="name">${escapeHtml(d.EventName||'(untitled event)')}</div>
+          <div class="org">${escapeHtml(d.Organizers||'')}</div>
+        </div>
+        <div><span class="tag ${tagCls}">${d.Category||'-'}</span></div>
+        <div class="venue-cell"><b>${d.Venue||'-'}</b><span>${escapeHtml(d.VenueHall||'')}</span></div>
+        <div class="pax-cell">${fmtPax(d.Pax)}<small>PAX</small></div>
+        <div class="stamp ${stampCls}">${d.Status==='Confirmed'?'Confirmed':'Inquiry'}</div>
+        <div class="chevron">▸</div>
+      </div>
+      <div class="card-detail">
+        <div class="detail-inner">
+          <div>
+            <div class="dt">Organizer(s)</div>
+            <div class="dd">${escapeHtml(d.Organizers||'—')}</div>
+            <div class="dt">Organizer Website(s)</div>
+            <div class="dd">${linkify(d.OrganizerWebs)}</div>
+          </div>
+          <div>
+            <div class="dt">Event Website</div>
+            <div class="dd">${linkify(d.EventWeb)}</div>
+            <div class="dt">Edition (Overall / At Venue)</div>
+            <div class="dd">${d.NoOfEdition??'—'} / ${d.NoOfEditionAtVenue??'—'}</div>
+            <div class="dt">Remark</div>
+            <div class="dd">${escapeHtml(d.Remark||'—')}</div>
+          </div>
+        </div>
+      </div>
+    </div>`;
+  }).join('');
+
+  container.querySelectorAll('.event-card').forEach(card=>{
+    card.querySelector('.card-main').addEventListener('click', ()=>{
+      const id = Number(card.dataset.id);
+      openCardId = (openCardId===id) ? null : id;
+      renderCards(getFiltered());
+    });
+  });
+}
+
+function escapeHtml(s){
+  if(s===null||s===undefined) return '';
+  return String(s).replace(/[&<>"']/g, c=>({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[c]));
+}
+function linkify(webs){
+  if(!webs) return '—';
+  const parts = String(webs).split(';').map(s=>s.trim()).filter(s=>s && s!=='-');
+  if(!parts.length) return '—';
+  return parts.map(p=>{
+    const href = p.startsWith('http') ? p : 'https://'+p;
+    return `<a class="web" href="${escapeHtml(href)}" target="_blank" rel="noopener">${escapeHtml(p)}</a>`;
+  }).join('<br>');
+}
+
+function getExhibitionSubset(){
+  // Same filters as getFiltered(), but Category is forced to "Exhibition"
+  // regardless of which category chip is active, so the overview always
+  // reflects the exhibition portfolio within the current year/venue/status/search scope.
+  const q = state.q.trim().toLowerCase();
+  return RAW_DATA.filter(d=>{
+    if(d.Category!=='Exhibition') return false;
+    if(state.year!=='All' && String(d.Year)!==String(state.year)) return false;
+    if(state.venue!=='All' && d.Venue!==state.venue) return false;
+    if(state.status!=='All' && d.Status!==state.status) return false;
+    if(q){
+      const hay = [d.EventName,d.Organizers,d.VenueHall,d.Venue,d.Category].join(' ').toLowerCase();
+      if(!hay.includes(q)) return false;
+    }
+    return true;
+  });
+}
+
+function renderExhSummary(){
+  const subset = getExhibitionSubset();
+  const count = subset.length;
+  const totalPax = subset.reduce((s,d)=>s+(d.Pax||0),0);
+  document.getElementById('exhCount').textContent = count.toLocaleString('en-US');
+  document.getElementById('exhPax').textContent = totalPax.toLocaleString('en-US');
+
+  const bits = [];
+  if(state.year!=='All') bits.push('Year '+state.year);
+  if(state.venue!=='All') bits.push(state.venue);
+  if(state.status!=='All') bits.push(state.status);
+  if(state.q) bits.push('"'+state.q+'"');
+  document.getElementById('exhScope').textContent = bits.length
+    ? '— filtered by ' + bits.join(' · ')
+    : '— ทุกข้อมูล (All data)';
+}
+
+const VENUE_COLORS = {
+  'BITEC':'#b23a2e',
+  'IMPACT':'#2f6fa8',
+  'QSNCC':'#c9a227',
+};
+const VENUE_FALLBACK_PALETTE = ['#7d5ba6','#2f6690','#a65b2f'];
+
+function venueColor(name, idx){
+  return VENUE_COLORS[name] || VENUE_FALLBACK_PALETTE[idx % VENUE_FALLBACK_PALETTE.length];
+}
+
+function getChartSeries(){
+  // Ignores the Year filter on purpose (chart always shows the full timeline),
+  // and applies Category / Status / Search so the chart stays in sync with the
+  // rest of the dashboard. When Venue = "All", it splits into one series per
+  // venue so the three venues can be compared side by side; otherwise it
+  // collapses to a single series for the selected venue.
+  const q = state.q.trim().toLowerCase();
+  const base = RAW_DATA.filter(d=>{
+    if(state.category!=='All' && d.Category!==state.category) return false;
+    if(state.status!=='All' && d.Status!==state.status) return false;
+    if(q){
+      const hay = [d.EventName,d.Organizers,d.VenueHall,d.Venue,d.Category].join(' ').toLowerCase();
+      if(!hay.includes(q)) return false;
+    }
+    return true;
+  });
+
+  const years = [...new Set(base.filter(d=>d.Year).map(d=>d.Year))].sort((a,b)=>a-b);
+
+  let venueList;
+  if(state.venue!=='All'){
+    venueList = [state.venue];
+  } else {
+    const preferred = ['BITEC','IMPACT','QSNCC'];
+    const present = [...new Set(base.map(d=>d.Venue).filter(Boolean))];
+    venueList = preferred.filter(v=>present.includes(v)).concat(present.filter(v=>!preferred.includes(v)));
+  }
+
+  const series = venueList.map((venue, idx)=>{
+    const byYear = {};
+    years.forEach(y=>byYear[y]={count:0,pax:0});
+    base.filter(d=>d.Venue===venue).forEach(d=>{
+      if(!d.Year) return;
+      byYear[d.Year].count += 1;
+      byYear[d.Year].pax += (d.Pax||0);
+    });
+    return {
+      label: venue,
+      color: venueColor(venue, idx),
+      count: years.map(y=>byYear[y].count),
+      pax: years.map(y=>byYear[y].pax),
+    };
+  });
+
+  return { years, series, isMulti: state.venue==='All' };
+}
+
+function buildLineChartSVG(years, series, key, fmt){
+  const W = 460, H = 190;
+  const padL = 42, padR = 16, padT = 22, padB = 28;
+  const innerW = W - padL - padR, innerH = H - padT - padB;
+  const n = years.length;
+  const maxV = Math.max(1, ...series.flatMap(s=>s[key]));
+  const xFor = i => n===1 ? padL + innerW/2 : padL + (innerW * i/(n-1));
+  const yFor = v => padT + innerH - (v/maxV)*innerH;
+
+  const gridLines = [0,0.25,0.5,0.75,1].map(t=>{
+    const y = padT + innerH*(1-t);
+    const val = Math.round(maxV*t);
+    return `<line x1="${padL}" y1="${y}" x2="${W-padR}" y2="${y}" stroke="#e3ded0" stroke-width="1"/>
+      <text x="${padL-8}" y="${y+3}" font-size="9" text-anchor="end" fill="#9a917a" font-family="IBM Plex Mono, monospace">${val>=1000?Math.round(val/1000)+'k':val}</text>`;
+  }).join('');
+
+  const yearLabels = years.map((y,i)=>`<text x="${xFor(i)}" y="${H-8}" font-size="11" text-anchor="middle" fill="#241f18" font-family="IBM Plex Mono, monospace" font-weight="600">${y}</text>`).join('');
+
+  const seriesSvg = series.map(s=>{
+    const points = s[key].map((v,i)=>`${xFor(i)},${yFor(v)}`).join(' ');
+    const dots = s[key].map((v,i)=>`
+      <circle cx="${xFor(i)}" cy="${yFor(v)}" r="3.5" fill="${s.color}" stroke="#fffdf8" stroke-width="1.3"/>
+      ${series.length<=1 ? `<text x="${xFor(i)}" y="${yFor(v)-9}" font-size="10.5" text-anchor="middle" fill="#5c5548" font-family="IBM Plex Mono, monospace" font-weight="600">${fmt(v)}</text>` : ''}
+    `).join('');
+    return `<polyline points="${points}" fill="none" stroke="${s.color}" stroke-width="2.3" stroke-linejoin="round" stroke-linecap="round"/>${dots}`;
+  }).join('');
+
+  return `<svg viewBox="0 0 ${W} ${H}" xmlns="http://www.w3.org/2000/svg">
+    ${gridLines}
+    ${seriesSvg}
+    ${yearLabels}
+  </svg>`;
+}
+
+function buildVenueLegend(series){
+  return `<div class="venue-legend">${series.map(s=>`
+    <span class="lg-item"><span class="lg-swatch" style="background:${s.color}"></span>${s.label}</span>
+  `).join('')}</div>`;
+}
+
+function renderTrendChart(){
+  const { years, series, isMulti } = getChartSeries();
+  const elCount = document.getElementById('trendChartCount');
+  const elPax = document.getElementById('trendChartPax');
+  const legendCount = document.getElementById('trendLegendCount');
+  const legendPax = document.getElementById('trendLegendPax');
+
+  if(!years.length){
+    elCount.innerHTML = '<div class="trend-empty">ไม่มีข้อมูลตามตัวกรองปัจจุบัน</div>';
+    elPax.innerHTML = '<div class="trend-empty">ไม่มีข้อมูลตามตัวกรองปัจจุบัน</div>';
+    legendCount.innerHTML = ''; legendPax.innerHTML = '';
+  } else {
+    elCount.innerHTML = buildLineChartSVG(years, series, 'count', v=>v);
+    elPax.innerHTML = buildLineChartSVG(years, series, 'pax', v=>v.toLocaleString('en-US'));
+    legendCount.innerHTML = isMulti ? buildVenueLegend(series) : '';
+    legendPax.innerHTML = isMulti ? buildVenueLegend(series) : '';
+  }
+
+  const bits = [];
+  if(state.venue!=='All') bits.push(state.venue);
+  if(state.category!=='All') bits.push(state.category);
+  if(state.status!=='All') bits.push(state.status);
+  if(state.q) bits.push('"'+state.q+'"');
+  document.getElementById('trendScope').textContent = bits.length
+    ? '— filtered by ' + bits.join(' · ')
+    : isMulti ? '— ทุกข้อมูล · เปรียบเทียบ 3 Venue' : '— ทุกข้อมูล (All data)';
+}
+
+function render(){
+  const filtered = getFiltered();
+  renderBreakdowns(filtered);
+  renderCards(filtered);
+  renderExhSummary();
+  renderTrendChart();
+  const bits = [];
+  if(state.year!=='All') bits.push('Year '+state.year);
+  if(state.venue!=='All') bits.push(state.venue);
+  if(state.category!=='All') bits.push(state.category);
+  if(state.status!=='All') bits.push(state.status);
+  if(state.q) bits.push('"'+state.q+'"');
+  document.getElementById('filterSummary').textContent = bits.length ? 'Active: '+bits.join(' · ') : 'No filters applied';
+}
+
+document.getElementById('searchBox').addEventListener('input', e=>{
+  state.q = e.target.value;
+  render();
+});
+
+document.getElementById('resetBtn').addEventListener('click', ()=>{
+  state.year='All'; state.venue='All'; state.category='All'; state.status='All'; state.q='';
+  document.getElementById('searchBox').value='';
+  document.querySelectorAll('.chips').forEach(el=>{
+    el.querySelectorAll('.chip').forEach(c=>c.classList.remove('active'));
+    el.querySelector('.chip').classList.add('active');
+  });
+  render();
+});
+
+renderStats();
+buildChips('chipsYear','Year','All Years');
+buildChips('chipsVenue','Venue','All Venues');
+buildChips('chipsCategory','Category','All Types');
+buildChips('chipsStatus','Status','All Status');
+document.getElementById('totalCount').textContent = RAW_DATA.length;
+render();
+</script>
+</body>
+</html>
